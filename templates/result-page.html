@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EffiRoad - Hasil Klasifikasi</title>
+    <link rel="icon" type="image/png" href="/asset/logo.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-image: url('/asset/jembatan.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.5);
+            z-index: -1;
+        }
+
+        /* Header/Navigation */
+        header {
+            background-color: #F9E7B2;
+            padding: 10px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background-color: #6b6b6b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .brand-name {
+            font-size: 32px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        nav {
+            display: flex;
+            gap: 40px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #000;
+            font-size: 18px;
+            font-weight: 500;
+            padding-bottom: 5px;
+            transition: border-bottom 0.3s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            border-bottom: 3px solid #000;
+        }
+
+        /* Main Content */
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 100px 100px;
+            min-height: calc(100vh - 100px);
+        }
+
+        .page-title {
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 80px;
+            color: #000;
+            line-height: 1.3;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: start;
+        }
+
+        /* Result Box */
+        .result-box {
+            background-color: #ffffff;
+            border-radius: 30px;
+            padding: 50px 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .result-title {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #000;
+        }
+
+        .video-preview {
+            background-color: #ffffff;
+            border-radius: 20px;
+            width: 100%;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .video-preview img,
+        .video-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Info Box */
+        .info-box {
+            background-color: #ffffff;
+            border-radius: 30px;
+            padding: 50px 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        .info-title {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 60px;
+            color: #000;
+        }
+
+        .info-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-item {
+            font-size: 28px;
+            font-weight: 600;
+            color: #000;
+            line-height: 1.5;
+        }
+
+        .info-label {
+            display: inline-block;
+            min-width: 230px;
+        }
+
+        /* Refresh Button */
+        .btn-refresh-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
+            width: 100%;
+        }
+
+        .btn-refresh {
+            background-color: #4A90D9;
+            color: white;
+            padding: 18px 70px;
+            border-radius: 50px;
+            font-size: 24px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-refresh:hover {
+            background-color: #757575;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Voting Detail Styles */
+        .voting-detail {
+            margin-top: 30px;
+            border-top: 2px solid #e0e0e0;
+            padding-top: 20px;
+        }
+
+        .voting-title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .vote-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .vote-row:hover {
+            background-color: #e9ecef;
+        }
+
+        .vote-class-name {
+            flex-grow: 1;
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .vote-count {
+            font-size: 16px;
+            color: #666;
+            margin-right: 15px;
+        }
+
+        .vote-percentage {
+            font-size: 16px;
+            font-weight: 600;
+            color: #007bff;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .page-title {
+                font-size: 36px;
+            }
+
+            .result-title,
+            .info-title {
+                font-size: 32px;
+            }
+
+            .info-item {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            nav {
+                gap: 25px;
+            }
+
+            nav a {
+                font-size: 20px;
+            }
+
+            .brand-name {
+                font-size: 32px;
+            }
+
+            .page-title {
+                font-size: 28px;
+                margin-bottom: 50px;
+            }
+
+            .result-box,
+            .info-box {
+                padding: 30px 25px;
+            }
+
+            .result-title,
+            .info-title {
+                font-size: 26px;
+                margin-bottom: 30px;
+            }
+
+            .info-item {
+                font-size: 20px;
+            }
+
+            .info-label {
+                min-width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="/asset/logo.png" alt="Logo" class="logo">
+            <div class="brand-name">EffiRoad</div>
+        </div>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/upload" class="active">Upload</a>
+            <a href="/info">Info</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1 class="page-title">Klasifikasi Kerusakan Jalan Pada Citra Dashcam Mobil<br>Menggunakan EfficientNet</h1>
+
+        <div class="content-grid">
+            <!-- Hasil Klasifikasi -->
+            <div class="result-box">
+                <h2 class="result-title">Hasil Klasifikasi</h2>
+                <div class="video-preview">
+                    <!-- Placeholder untuk video/gambar -->
+                    <svg width="100%" height="100%" viewBox="0 0 640 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="640" height="360" fill="#f5f5f5"/>
+                        <path d="M280 140L360 180L280 220V140Z" fill="#999"/>
+                        <circle cx="320" cy="180" r="60" stroke="#999" stroke-width="4" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Informasi Detail -->
+            <div class="info-box">
+                <h2 class="info-title">Informasi Detail</h2>
+                <div class="info-content">
+                    <div class="info-item">
+                        <span class="info-label">Kondisi Jalan</span> : <span id="condition-text">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Confident Score:</span> <span id="score-text">-</span>%
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Total Frame:</span> <span id="total-frames-text">-</span>
+                    </div>
+                </div>
+                
+                <!-- Voting Detail Container -->
+                <div class="voting-detail">
+                    <h3 class="voting-title">Detail Voting Per Kelas</h3>
+                    <div id="voting-container">
+                        <!-- Vote rows will be inserted here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-refresh-container">
+            <button class="btn-refresh" onclick="refreshPage()">Klasifikasi Ulang</button>
+        </div>
+    </main>
+
+    <script>
+        // Fungsi untuk menampilkan video yang di-upload
+        function displayUploadedVideo(videoFile) {
+            const videoPreview = document.querySelector('.video-preview');
+            const video = document.createElement('video');
+            video.controls = true;
+            video.src = URL.createObjectURL(videoFile);
+            videoPreview.innerHTML = '';
+            videoPreview.appendChild(video);
+        }
+
+        // Fungsi untuk menampilkan voting detail
+        function displayVotingDetail(votes, totalFrames) {
+            const votingContainer = document.getElementById('voting-container');
+            
+            if (!votes) {
+                votingContainer.innerHTML = '<p style="text-align: center; color: #666;">Data voting tidak tersedia</p>';
+                return;
+            }
+
+            // Hitung total votes
+            const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+            
+            // Generate HTML untuk setiap kelas
+            let html = '';
+            for (const [className, count] of Object.entries(votes)) {
+                const percentage = totalVotes > 0 ? ((count / totalVotes) * 100).toFixed(1) : 0;
+                html += `
+                    <div class="vote-row">
+                        <span class="vote-class-name">${className}</span>
+                        <span class="vote-count">${count} vote</span>
+                        <span class="vote-percentage">${percentage}%</span>
+                    </div>
+                `;
+            }
+            
+            votingContainer.innerHTML = html;
+        }
+
+        // Load result data and display video
+        const savedResult = sessionStorage.getItem('classificationResult');
+        if (savedResult) {
+            const result = JSON.parse(savedResult);
+
+            // Update classification info
+            document.getElementById('condition-text').textContent = result.condition || '-';
+            document.getElementById('score-text').textContent = result.score || '-';
+            document.getElementById('total-frames-text').textContent = result.total_frames || '-';
+
+            // Display voting detail
+            if (result.votes) {
+                displayVotingDetail(result.votes, result.total_frames);
+            }
+
+            // Display the uploaded video if filename is available
+            if (result.filename) {
+                const videoPreview = document.querySelector('.video-preview');
+                const video = document.createElement('video');
+                video.src = `/uploads/${result.filename}`;
+                video.controls = true;
+                video.style.width = '100%';
+                video.style.height = '100%';
+                video.style.objectFit = 'contain';
+
+                videoPreview.innerHTML = '';
+                videoPreview.appendChild(video);
+            }
+        }
+
+        function refreshPage() {
+            // Clear sessionStorage
+            sessionStorage.removeItem('classificationResult');
+            // Redirect to upload page
+            window.location.href = '/upload';
+        }
+    </script>
+</body>
+</html>
